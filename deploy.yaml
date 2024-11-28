@@ -19,10 +19,10 @@
       k8s:
         state: present
         src: "./k8s_configs/frontend-deployment.yaml"
-        kubeconfig: "~/.kube/config"
+        kubeconfig: "/home/ricky/.kube/config"
 
     - name: Apply frontend service
       k8s:
         state: present
         src: "./k8s_configs/frontend-service.yaml"
-        kubeconfig: "~/.kube/config"
+        kubeconfig: "/home/ricky/.kube/config"

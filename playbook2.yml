@@ -1,0 +1,87 @@
+- name: Setup and port-forward Kubernetes frontend and backend
+  hosts: myhosts
+  vars_files:
+    - "/home/ricky/Desktop/sem7/SPE/finalProject_CICD/secret_vars/frontend_secrets.yml"
+    - "/home/ricky/Desktop/sem7/SPE/finalProject_CICD/secret_vars/backend_secrets.yml"
+  become: false
+  tasks:
+    - name: Create frontend secrets in Kubernetes
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: frontend-secrets
+            namespace: default
+          type: Opaque
+          data:
+            VITE_API_KEY: "{{ VITE_API_KEY | b64encode }}"
+            VITE_Auth_Domain: "{{ VITE_Auth_Domain | b64encode }}"
+            VITE_PROJECT_ID: "{{ VITE_PROJECT_ID | b64encode }}"
+            VITE_STORAGE_BUCKET: "{{ VITE_STORAGE_BUCKET | b64encode }}"
+            VITE_MESSAGING_SENDERID: "{{ VITE_MESSAGING_SENDERID | b64encode }}"
+            VITE_APPID: "{{ VITE_APPID | b64encode }}"
+            VITE_MEASUREMENT_ID: "{{ VITE_MEASUREMENT_ID | b64encode }}"
+            VITE_BACKEND_BASEURL: "{{ VITE_BACKEND_BASEURL | b64encode }}"
+
+    - name: Create backend secrets in Kubernetes
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: backend-secrets
+            namespace: default
+          type: Opaque
+          data:
+            DB_URL: "{{ DB_URL | b64encode }}"
+            JWT_SECRET_KEY: "{{ JWT_SECRET_KEY | b64encode }}"
+
+    # Apply Kubernetes Manifests for Backend
+    - name: Apply backend deployment and service
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition: "{{ lookup('file', 'backend/backend-deployment.yaml') }}"
+
+    - name: Apply backend service definition
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition: "{{ lookup('file', 'backend/backend-service.yaml') }}"
+
+    # Apply Kubernetes Manifests for Frontend
+    - name: Apply frontend deployment and service
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition: "{{ lookup('file', 'frontend/frontend-deployment.yaml') }}"
+
+    - name: Apply frontend service definition
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition: "{{ lookup('file', 'frontend/frontend-service.yaml') }}"
+
+    # Wait for frontend service to be created and running
+    - name: Wait for frontend service to be running
+      kubernetes.core.k8s_info:
+        kubeconfig: "~/.kube/config"
+        kind: Service
+      register: k8s_facts
+      until: >
+        {{
+          k8s_facts.resources | selectattr('metadata.name', 'equalto', 'frontend-service') | list | length > 0
+        }}
+      retries: 10
+      delay: 10
+
+    # Port-forward the frontend service to make it accessible on port 5173
+    - name: Port-forward frontend service
+      command: kubectl port-forward service/frontend-service 5173:5173
+      async: 300 # Run the command asynchronously (for 5 min)
+      poll: 0 # Don't wait for the task to complete; it's running in the background

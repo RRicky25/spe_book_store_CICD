@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: rricky25/backend_image
+        env:
+        - name: ENV_VAR_NAME
+          value: "value"
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: DB_URL
+        - name: JWT_SECRET_KEY 
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: JWT_SECRET_KEY
+        command: ["/bin/sh", "-c"]
+        args:
+        - ls && npm run start;
+        ports:
+        - containerPort: 5000
+
+
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: backend
+#   namespace: default
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: backend
+#   template:
+#     metadata:
+#       labels:
+#         app: backend
+#     spec:
+#       containers:
+#       - name: backend
+#         image: rricky25/backend_image
+#         env:
+#         - name: ENV_VAR_NAME
+#           value: "value"
+#         - name: DB_URL
+#           value: "mongodb+srv://ricky2:willTop2023@cluster0ricky.2cbbe.mongodb.net/book-store?retryWrites=true&w=majority&appName=Cluster0Ricky"
+#         - name: JWT_SECRET_KEY 
+#           value: 'ec976be6d99ca489a0e8e37a11d52fdc923c8138a292fc3e18fda2251ca8107c'
+#         command: ["/bin/sh", "-c"]
+#         args:
+#         - ls && npm run start;
+#         ports:
+#         - containerPort: 5000
+

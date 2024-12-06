@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: rricky25/frontend_image
+        env:
+        - name: ENV_VAR_NAME
+          value: "value"
+        - name: VITE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_API_KEY
+        - name: VITE_Auth_Domain
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_Auth_Domain
+        - name: VITE_PROJECT_ID
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_PROJECT_ID
+        - name: VITE_STORAGE_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_STORAGE_BUCKET
+        - name: VITE_MESSAGING_SENDERID
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_MESSAGING_SENDERID
+        - name: VITE_APPID
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_APPID
+        - name: VITE_MEASUREMENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_MEASUREMENT_ID
+        - name: VITE_BACKEND_BASEURL
+          valueFrom:
+            secretKeyRef:
+              name: frontend-secrets
+              key: VITE_BACKEND_BASEURL
+        command: ["/bin/sh", "-c"]
+        args:
+        - ls -l && apt-get update && apt-get install xdg-utils -y &&  npm i react-redux && npm run dev;
+        ports:
+        - containerPort: 5173
+        resources:
+          requests:
+            cpu: "200m"        # 100 millicores
+            memory: "512Mi"    # 256 MiB
+          limits:
+            cpu: "512m"           # 512m core
+            memory: "1024Mi"    # 512 MiB
+
+
+
+
+
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: frontend
+#   namespace: default
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: frontend
+#   template:
+#     metadata:
+#       labels:
+#         app: frontend
+#     spec:
+#       containers:
+#       - name: frontend
+#         image: rricky25/frontend_image
+#         env:
+#         - name: ENV_VAR_NAME
+#           value: "value"
+#         - name: VITE_API_KEY
+#           value: "AIzaSyDaRqiikX77w4-PSRfB8QN2fcEle4YbX_c"
+#         - name: VITE_Auth_Domain
+#           value: "book-store-mern-app-ada5b.firebaseapp.com"
+#         - name: VITE_PROJECT_ID
+#           value: "book-store-mern-app-ada5b"
+#         - name: VITE_STORAGE_BUCKET
+#           value: "book-store-mern-app-ada5b.firebasestorage.app"
+#         - name: VITE_MESSAGING_SENDERID
+#           value: "1026354339786"
+#         - name: VITE_APPID
+#           value: "1:1026354339786:web:473309f83fdabd5bd63933"
+#         - name: VITE_MEASUREMENT_ID
+#           value: "G-BFBP04P2YH"
+#         - name: VITE_BACKEND_BASEURL
+#           value: "http://localhost:5000"
+#         command: ["/bin/sh", "-c"]
+#         args:
+#         - ls -l && apt-get update && apt-get install xdg-utils -y &&  npm i react-redux && npm run dev;
+#         ports:
+#         - containerPort: 5173
+#         resources:
+#           requests:
+#             cpu: "200m"        # 100 millicores
+#             memory: "512Mi"    # 256 MiB
+#           limits:
+#             cpu: "512m"           # 512m core
+#             memory: "1024Mi"    # 512 MiB
+

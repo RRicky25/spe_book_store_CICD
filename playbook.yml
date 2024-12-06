@@ -1,0 +1,47 @@
+- name: Setup minikube with docker driver
+  hosts: myhosts
+  become: true
+
+  tasks:
+    # INSTALLING DOCKER
+    - name: check if docker is already installed or not
+      command: docker --version
+      register: docker_valid
+      ignore_errors: yes
+
+    - name: if already present
+      debug:
+        msg: "docker is already present"
+      when: not docker_valid.failed
+
+    - name: Install docker if not already installed
+      apt:
+        name: docker.io
+        state: present
+      when: docker_valid.failed
+
+    # STARTING DOCKER SERVICE
+    - name: make sure that docker service is running
+      service:
+        name: docker
+        state: started
+
+    # INSTALL MINIKUBE
+    - name: check if minikube is already present
+      command: minikube version
+      register: minikube_valid
+      ignore_errors: yes
+
+    - name: if minikube is already present
+      debug:
+        msg: "minikube is already there"
+      when: not minikube_valid.failed
+
+    - name: if minikube is not present
+      command: curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && mv minikube /usr/local/bin/
+      when: minikube_valid.failed
+
+    # START MINIKUBE
+    - name: Start Minikube even if its already started
+      command: minikube start --driver=docker
+      become: false

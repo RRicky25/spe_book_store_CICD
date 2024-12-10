@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elk-stack
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elk-stack
+  template:
+    metadata:
+      labels:
+        app: elk-stack
+    spec:
+      containers:
+        - name: elk-stack
+          image: rricky25/elk_image
+          ports:
+            - containerPort: 9200 # Elasticsearch
+            - containerPort: 5601 # Kibana
+            - containerPort: 5044 # Logstash
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "1"
+            limits:
+              memory: "6Gi"
+              cpu: "2"
+          volumeMounts:
+            - name: app-logs
+              mountPath: /logs/testingLogs # Mount logs directory inside the container
+      volumes:
+        - name: app-logs
+          hostPath:
+            path: /var/log/backend/app
+            type: DirectoryOrCreate

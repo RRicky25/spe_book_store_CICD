@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elk-stack-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: elk-stack
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200 # Elasticsearch
+      name: elasticsearch
+    - protocol: TCP
+      port: 5601
+      targetPort: 5601 # Kibana
+      name: kibana
+    - protocol: TCP
+      port: 5044
+      targetPort: 5044 # Logstash
+      name: logstash

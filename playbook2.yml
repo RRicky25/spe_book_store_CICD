@@ -55,9 +55,16 @@
         state: present
         definition: "{{ lookup('file', 'frontend.yaml') }}"
 
-    - name: Wait for 10 seconds for main code services to setup
+    # Apply Kubernetes Manifests for elk-stack
+    - name: Apply elk-stack deployment
+      kubernetes.core.k8s:
+        kubeconfig: "~/.kube/config"
+        state: present
+        definition: "{{ lookup('file', 'elk.yaml') }}"
+
+    - name: Wait for 10 seconds for all the services to setup
       pause:
-        seconds: 10
+        seconds: 40
 
     # Port-forward the frontend service to make it accessible on port 5173
     - name: Port-forward frontend service
@@ -70,17 +77,6 @@
       command: kubectl port-forward service/backend-service 5000:5000
       async: 600 # Run the command asynchronously (for 10 min)
       poll: 0 # Don't wait for the task to complete; it's running in the background
-
-    # Apply Kubernetes Manifests for elk-stack
-    - name: Apply elk-stack deployment
-      kubernetes.core.k8s:
-        kubeconfig: "~/.kube/config"
-        state: present
-        definition: "{{ lookup('file', 'elk.yaml') }}"
-
-    - name: Wait for 10 seconds for elk services to setup
-      pause:
-        seconds: 10
 
     # Port-forward the elk service to make it accessible on port 9200
     - name: Port-forward elk elasticserch related service

@@ -46,39 +46,14 @@
       kubernetes.core.k8s:
         kubeconfig: "~/.kube/config"
         state: present
-        definition: "{{ lookup('file', 'backend/backend-deployment.yaml') }}"
-
-    - name: Apply backend service definition
-      kubernetes.core.k8s:
-        kubeconfig: "~/.kube/config"
-        state: present
-        definition: "{{ lookup('file', 'backend/backend-service.yaml') }}"
+        definition: "{{ lookup('file', 'backend.yaml') }}"
 
     # Apply Kubernetes Manifests for Frontend
     - name: Apply frontend deployment and service
       kubernetes.core.k8s:
         kubeconfig: "~/.kube/config"
         state: present
-        definition: "{{ lookup('file', 'frontend/frontend-deployment.yaml') }}"
-
-    - name: Apply frontend service definition
-      kubernetes.core.k8s:
-        kubeconfig: "~/.kube/config"
-        state: present
-        definition: "{{ lookup('file', 'frontend/frontend-service.yaml') }}"
-
-    # Wait for frontend service to be created and running
-    - name: Wait for frontend service to be running
-      kubernetes.core.k8s_info:
-        kubeconfig: "~/.kube/config"
-        kind: Service
-      register: k8s_facts
-      until: >
-        {{
-          k8s_facts.resources | selectattr('metadata.name', 'equalto', 'frontend-service') | list | length > 0
-        }}
-      retries: 10
-      delay: 10
+        definition: "{{ lookup('file', 'frontend.yaml') }}"
 
     - name: Wait for 10 seconds for main code services to setup
       pause:
@@ -101,28 +76,9 @@
       kubernetes.core.k8s:
         kubeconfig: "~/.kube/config"
         state: present
-        definition: "{{ lookup('file', 'elk/elk-deployment.yml') }}"
+        definition: "{{ lookup('file', 'elk.yaml') }}"
 
-    - name: Apply elk-stack service definition
-      kubernetes.core.k8s:
-        kubeconfig: "~/.kube/config"
-        state: present
-        definition: "{{ lookup('file', 'elk/elk-service.yml') }}"
-
-    # Wait for frontend service to be created and running
-    - name: Wait for elk-stack service to be running
-      kubernetes.core.k8s_info:
-        kubeconfig: "~/.kube/config"
-        kind: Service
-      register: k8s_facts
-      until: >
-        {{
-          k8s_facts.resources | selectattr('metadata.name', 'equalto', 'elk-stack-service') | list | length > 0
-        }}
-      retries: 10
-      delay: 10
-
-    - name: Wait for 10 seconds
+    - name: Wait for 10 seconds for elk services to setup
       pause:
         seconds: 10
 

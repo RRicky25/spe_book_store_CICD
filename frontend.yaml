@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: rricky25/frontend_image
+          env:
+            - name: ENV_VAR_NAME
+              value: "value"
+            - name: VITE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_API_KEY
+            - name: VITE_Auth_Domain
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_Auth_Domain
+            - name: VITE_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_PROJECT_ID
+            - name: VITE_STORAGE_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_STORAGE_BUCKET
+            - name: VITE_MESSAGING_SENDERID
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_MESSAGING_SENDERID
+            - name: VITE_APPID
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_APPID
+            - name: VITE_MEASUREMENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_MEASUREMENT_ID
+            - name: VITE_BACKEND_BASEURL
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: VITE_BACKEND_BASEURL
+          command: ["/bin/sh", "-c"]
+          args:
+            - ls -l && apt-get update && apt-get install xdg-utils -y &&  npm i react-redux && npm run dev;
+          ports:
+            - containerPort: 5173
+          resources:
+            requests:
+              cpu: "100m" # 100 millicores
+              memory: "256Mi" # 256 MiB
+            limits:
+              cpu: "512m" # 512m core
+              memory: "512Mi" # 512 MiB
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - name: frontend-port
+      protocol: TCP
+      port: 5173
+      targetPort: 5173
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50 # Scale when CPU usage exceeds 50%

@@ -1,0 +1,26 @@
+pipeline{
+    environment{
+        docker_image = ""
+    }
+    agent any
+    stages{
+        stage('step 1 : Fetch deployment code'){
+            steps{
+                git branch: 'main',
+                url:'https://github.com/RRicky25/spe_book_store_CICD.git'
+            }
+        }
+        stage('Step 2: Ansible Deployment'){
+            steps{
+                ansiblePlaybook becomeUser: null,
+                colorized: true,
+                credentialsId: 'localhost',
+                disableHostKeyChecking: true,
+                installation: 'Ansible',
+                inventory: 'inventory.ini',
+                playbook: 'playbook2.yml',
+                sudoUser: null
+            }
+        }
+    }
+}

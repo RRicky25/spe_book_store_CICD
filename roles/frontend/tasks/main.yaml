@@ -26,6 +26,12 @@
     state: present
     definition: "{{ lookup('file', '../frontend.yaml') }}"
 
+- name: Wait for frontend service to be ready
+  shell: |
+    kubectl wait --for=condition=available --timeout=300s deployment/frontend-deployment
+  register: wait_result
+  changed_when: false
+
 - name: Wait for 10 seconds for all the services to setup
   pause:
     seconds: 10

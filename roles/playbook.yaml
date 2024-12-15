@@ -1,0 +1,11 @@
+- name: Setup and port-forward Kubernetes frontend and backend and elk-stack
+  hosts: myhosts
+  vars_files:
+    - "/home/ricky/Desktop/sem7/SPE/finalProject_CICD/secret_vars/frontend_secrets.yml"
+    - "/home/ricky/Desktop/sem7/SPE/finalProject_CICD/secret_vars/backend_secrets.yml"
+  become: false
+
+  roles:
+    - backend
+    - frontend
+    - elk

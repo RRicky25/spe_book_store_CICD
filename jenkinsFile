@@ -17,8 +17,8 @@ pipeline{
                 credentialsId: 'localhost',
                 disableHostKeyChecking: true,
                 installation: 'Ansible',
-                inventory: 'inventory.ini',
-                playbook: 'playbook2.yml',
+                inventory: 'roles/inventory.ini',
+                playbook: 'roles/playbook.yaml',
                 sudoUser: null
             }
         }

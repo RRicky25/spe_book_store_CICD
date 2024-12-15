@@ -1,0 +1,31 @@
+- name: Create backend secrets in Kubernetes
+  kubernetes.core.k8s:
+    kubeconfig: "~/.kube/config"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: backend-secrets
+        namespace: default
+      type: Opaque
+      data:
+        DB_URL: "{{ DB_URL | b64encode }}"
+        JWT_SECRET_KEY: "{{ JWT_SECRET_KEY | b64encode }}"
+
+# Apply Kubernetes Manifests for Backend
+- name: Apply backend deployment and service
+  kubernetes.core.k8s:
+    kubeconfig: "~/.kube/config"
+    state: present
+    definition: "{{ lookup('file', '../backend.yaml') }}"
+
+- name: Wait for 10 seconds for all the services to setup
+  pause:
+    seconds: 10
+
+# Port-forward the frontend service to make it accessible on port 5173
+- name: Port-forward backend service
+  command: kubectl port-forward service/backend-service 5000:5000
+  async: 300 # Run the command asynchronously (for 10 min)
+  poll: 0 # Don't wait for the task to complete; it's running in the background

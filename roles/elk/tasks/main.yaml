@@ -18,11 +18,11 @@
 # Port-forward the elk service to make it accessible on port 9200
 - name: Port-forward elk elasticserch related service
   command: kubectl port-forward service/elk-stack-service 9200:9200
-  async: 300 # Run the command asynchronously (for 10 min)
+  async: 800 # Run the command asynchronously (for 10 min)
   poll: 0 # Don't wait for the task to complete; it's running in the background
 
 # Port-forward the elk service to make it accessible on port 5601
 - name: Port-forward elk kibana related service
   command: kubectl port-forward service/elk-stack-service 5601:5601
-  async: 300 # Run the command asynchronously (for 10 min)
+  async: 800 # Run the command asynchronously (for 10 min)
   poll: 0 # Don't wait for the task to complete; it's running in the background

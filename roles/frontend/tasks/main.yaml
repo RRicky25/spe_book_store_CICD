@@ -39,5 +39,5 @@
 # Port-forward the frontend service to make it accessible on port 5173 hello testing
 - name: Port-forward frontend service
   command: kubectl port-forward service/frontend-service 5173:5173
-  async: 300 # Run the command asynchronously (for 10 min)
+  async: 800 # Run the command asynchronously (for 10 min)
   poll: 0 # Don't wait for the task to complete; it's running in the background

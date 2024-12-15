@@ -66,10 +66,10 @@ spec:
             - containerPort: 5173
           resources:
             requests:
-              cpu: "256m" # 200 millicores
+              cpu: "512m" # 200 millicores
               memory: "512Mi" # 256 MiB
             limits:
-              cpu: "512m" # 512m core
+              cpu: "1024m" # 512m core
               memory: "1024Mi" # 512 MiB
 
 ---

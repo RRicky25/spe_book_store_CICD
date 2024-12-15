@@ -20,6 +20,12 @@
     state: present
     definition: "{{ lookup('file', '../backend.yaml') }}"
 
+- name: Wait for elk service to be ready
+  shell: |
+    kubectl wait --for=condition=available --timeout=300s deployment/backend
+  register: wait_result
+  changed_when: false
+
 - name: Wait for 10 seconds for all the services to setup
   pause:
     seconds: 10

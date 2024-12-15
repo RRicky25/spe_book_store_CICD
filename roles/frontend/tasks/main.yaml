@@ -28,7 +28,7 @@
 
 - name: Wait for frontend service to be ready
   shell: |
-    kubectl wait --for=condition=available --timeout=300s deployment/frontend-deployment
+    kubectl wait --for=condition=available --timeout=300s deployment/frontend
   register: wait_result
   changed_when: false
 

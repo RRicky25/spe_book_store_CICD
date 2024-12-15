@@ -13,7 +13,7 @@
         DB_URL: "{{ DB_URL | b64encode }}"
         JWT_SECRET_KEY: "{{ JWT_SECRET_KEY | b64encode }}"
 
-# Apply Kubernetes Manifests for Backend
+# Apply Kubernetes Manifests for Backend. webhook testing.
 - name: Apply backend deployment and service
   kubernetes.core.k8s:
     kubeconfig: "~/.kube/config"
